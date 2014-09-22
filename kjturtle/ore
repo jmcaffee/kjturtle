@@ -28,6 +28,7 @@
 
 os.loadAPI('/kjlib/state')
 os.loadAPI('/kjlib/device')
+os.loadAPI('/kjlib/web')
 
 -- Channel to send turtle state on
 local channel = 1
@@ -132,20 +133,6 @@ end
 
 
 -- ********************************************************************************** --
--- Encode serialized table data to be passed through http
--- ********************************************************************************** --
-local function url_encode(str)
-    if (str) then
-        str = string.gsub(str, "\n", "\r\n")
-        str = string.gsub(str, "([^%w %-%_%.%~])",
-        function (c) return string.format("%%%02X", string.byte(c)) end)
-        str = string.gsub(str, " ", "+")
-    end
-    return str
-end
-
-
--- ********************************************************************************** --
 -- Send our state to the base monitor via http
 -- ********************************************************************************** --
 function sendState(msg)
@@ -153,7 +140,7 @@ function sendState(msg)
     local url = baseUrl .. turtleId
 
     local ser = textutils.serialize(stats)
-    local enc = url_encode(ser)
+    local enc = web.url_encode(ser)
 
     http.request(url, enc)
 end
