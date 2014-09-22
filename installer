@@ -12,8 +12,12 @@
 local url = "https://raw.github.com/jmcaffee/kjturtle/master/kjturtle/"
 local files = {}
 local filelist = {
-    'ore';
+    'createsite';
+    'getlava';
     'nextsite';
+    'ore';
+    'pumpfuel';
+    'tunnel';
 }
 
 local function clear()
