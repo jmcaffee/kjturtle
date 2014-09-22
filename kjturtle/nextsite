@@ -1,0 +1,116 @@
+-- nextsite
+-- http://pastebin.com/???
+--
+-- ComputerCraft program to move to next mining site.
+--
+-- ARGS:
+--  Number of BLOCKS (16 meters) to move forward.
+--      Turtle will tunnel straight forward from its current location,
+--      dig a 7x5x2 mining site with 2 blocks of the 5 in the previous grid
+--      section.
+--
+-- Author: knuckleheadJoe
+-- 2014-09-15
+
+-- Get the input args
+local args = {...}
+
+if (#args == 0) then
+    print("Usage: " .. shell.getRunningProgram() .. " <sectionCount>")
+    error()
+end
+
+-- Dig a 1x2 tunnel section
+function tunnel(blocks)
+    for x = 1, blocks do
+        digForward()
+    end
+end
+
+function digForward()
+    --while true ~= turtle.forward() do
+    while turtle.detect() do
+        turtle.dig()
+        -- Wait for sand or gravel to fall
+        sleep(0.5)
+    end
+    turtle.forward()
+    turtle.digUp()
+end
+
+-- Dig out mining site
+function digSite()
+    local len = 5
+
+    local len1 = len - 1
+    local len2 = len + 1
+
+    -- Column 1
+    for x = 1, len1 do
+        digForward()
+    end
+
+    -- Column 2
+    turtle.turnRight()
+    digForward()
+
+    turtle.turnRight()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Column 3
+    turtle.turnLeft()
+    digForward()
+
+    turtle.turnLeft()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Column 4
+    turtle.turnRight()
+    digForward()
+
+    turtle.turnRight()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Column 5
+    turtle.turnLeft()
+    digForward()
+
+    turtle.turnLeft()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Back to mine head.
+    turtle.turnLeft()
+    for x = 1, len1 do
+        turtle.forward()
+    end
+
+    turtle.turnLeft()
+    for x = 1, len1 do
+        turtle.forward()
+    end
+
+    turtle.turnLeft()
+    turtle.turnLeft()
+end
+
+-- MAIN --
+
+local blocksToMoveForward = tonumber(args[1])
+blocksToMoveForward = blocksToMoveForward * 16
+-- print("blocks to tunnel: ", blocksToMoveForward)
+-- error()
+
+-- Tunnel forward to destination section.
+tunnel(blocksToMoveForward)
+
+-- Dig mine site
+digSite()
+

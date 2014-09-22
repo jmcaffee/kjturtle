@@ -1,0 +1,105 @@
+-- ***************************************************************************
+-- kjturtle installer
+--
+-- Author: knuckleheadJoe
+-- Date: 2014-09-21
+--
+-- Much of the code for this installer was copied from Kingdaro's craftbang
+-- source code. @see https://github.com/Kingdaro/CraftBang
+--
+-- ***************************************************************************
+
+local url = "https://raw.github.com/jmcaffee/kjturtle/master/kjturtle/"
+local files = {}
+local filelist = {
+    'ore';
+    'nextsite';
+}
+
+local function clear()
+    term.clear()
+    term.setCursorPos(1,1)
+end
+
+local kjlibInstalled = false
+if not fs.exists('/kjlib') then
+    clear()
+    kjlibInstalled = true
+
+    write "kjlib does not appear to be installed on this machine."
+    write "Do you wish to install it? [Y/n] "
+    local input = read():lower():sub(1,1)
+    if input == 'n' then
+        print "kjlib not installed. Run this installer again after installing kjlib."
+        return
+    end
+
+    write "Installing kjlib..."
+    local kjurl = "https://raw.github.com/jmcaffee/kjlib/master/installer"
+    local instPath = '.installkj'
+    local download = http.get(kjurl)
+    if download then
+        local file = fs.open(instPath, 'w')
+        file.write(download.readAll())
+        file.close()
+        download.close()
+
+        shell.run(instPath)
+        fs.delete(instPath)
+    else
+        print("Couldn't get "..kjinstaller)
+        print("kjlib installation failed.")
+        return
+    end
+
+    sleep(1)
+end
+
+clear()
+local errors = false
+for i=1, #filelist do
+    local filename = filelist[i]
+    local fullurl = url .. filename
+    local localpath = filename
+
+    local download = http.get(fullurl)
+    if download then
+        print("Fetching "..filename)
+        files[localpath] = download.readAll()
+        download.close()
+    else
+        print("Couldn't get "..filename)
+        print "Installation failed."
+        return
+    end
+end
+sleep(1)
+
+local installed = false
+if fs.exists('ore') then
+    clear()
+    installed = true
+
+    write "Overwrite current kjturtle installation? [Y/n] "
+    local input = read():lower():sub(1,1)
+    if input == 'n' then
+        print "Will not write files."
+        return
+    end
+    fs.delete('ore')
+end
+
+clear()
+for path, content in pairs(files) do
+    print("Writing "..path)
+    local file = fs.open(path, 'w')
+    file.write(content)
+    file.close()
+end
+print "Installation complete!"
+print "Be sure to set your turtle's ID before breaking or rebooting it"
+print "or all programs will be lost."
+print ""
+print "Use 'label set <ID>' at the command line."
+sleep(1)
+
