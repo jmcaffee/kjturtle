@@ -1,0 +1,45 @@
+-- tunnel
+-- http://pastebin.com/???
+--
+-- ComputerCraft program to create a 1x2 tunnel.
+--
+-- ARGS:
+--  Number of blocks to tunnel forward.
+--      Turtle will tunnel straight forward from its current location,
+--
+-- Author: knuckleheadJoe
+-- 2014-09-17
+
+-- Get the input args
+local args = {...}
+
+if (#args == 0) then
+    print("Usage: " .. shell.getRunningProgram() .. " <blockCount>")
+    error()
+end
+
+-- Dig a 1x2 tunnel section
+function tunnel(blocks)
+    for x = 1, blocks do
+        digForward()
+    end
+end
+
+function digForward()
+    while true ~= turtle.forward() do
+        turtle.dig()
+    end
+    turtle.digUp()
+end
+
+
+-- MAIN --
+
+local blocksToMoveForward = tonumber(args[1])
+-- print("blocks to tunnel: ", blocksToMoveForward)
+-- error()
+
+-- Tunnel forward to destination section.
+tunnel(blocksToMoveForward)
+
+

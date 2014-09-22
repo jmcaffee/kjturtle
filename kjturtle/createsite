@@ -1,0 +1,94 @@
+-- createsite
+-- http://pastebin.com/???
+--
+-- ComputerCraft program to create mine head site.
+--
+-- ARGS:
+--  None
+--
+-- Author: knuckleheadJoe
+-- 2014-09-17
+
+-- Get the input args
+local args = {...}
+
+if (#args > 0) then
+    print("Usage: " .. shell.getRunningProgram() )
+    error()
+end
+
+function digForward()
+    while true ~= turtle.forward() do
+        turtle.dig()
+    end
+    turtle.digUp()
+end
+
+-- Dig out mining site
+function digSite()
+    local len = 5
+
+    local len1 = len - 1
+    local len2 = len + 1
+
+    -- Column 1
+    for x = 1, len1 do
+        digForward()
+    end
+
+    -- Column 2
+    turtle.turnRight()
+    digForward()
+
+    turtle.turnRight()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Column 3
+    turtle.turnLeft()
+    digForward()
+
+    turtle.turnLeft()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Column 4
+    turtle.turnRight()
+    digForward()
+
+    turtle.turnRight()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Column 5
+    turtle.turnLeft()
+    digForward()
+
+    turtle.turnLeft()
+    for x = 1, len2 do
+        digForward()
+    end
+
+    -- Back to mine head.
+    turtle.turnLeft()
+    for x = 1, len1 do
+        turtle.forward()
+    end
+
+    turtle.turnLeft()
+    for x = 1, len1 do
+        turtle.forward()
+    end
+
+    turtle.turnLeft()
+    turtle.turnLeft()
+end
+
+-- MAIN --
+
+-- Dig mine site
+digSite()
+

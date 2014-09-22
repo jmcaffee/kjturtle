@@ -1,0 +1,45 @@
+-- pumpfuel
+-- http://pastebin.com/BJ0wG0ve
+--
+-- ComputerCraft program to refuel turtle with lava via a chest attached to a
+-- Fluid Transposer.
+-- The turtle will refuel through slot 16, the lower-right slot, so be sure
+-- the slot is empty before running this program.
+--
+-- Author: knuckleheadJoe
+-- 2014-08-26
+
+-- Max fuel to pump
+local maxFuel = 200000
+
+-- Select the last slot for refueling.
+turtle.select(16)
+
+-- Move forward into the refueling bay
+local forwardCount = 0;
+
+while turtle.forward() do
+    forwardCount = forwardCount + 1;
+end
+
+-- Begin fueling
+local fuel = turtle.getFuelLevel();
+
+print "Pumping fuel...";
+print("Current fuel level: "..fuel);
+
+while fuel < maxFuel do
+    turtle.suck();
+    turtle.refuel();
+    fuel = turtle.getFuelLevel();
+    print("Fuel: "..fuel);
+    turtle.dropUp();
+end
+
+-- Back out of bay
+while forwardCount > 0 do
+    turtle.back();
+    forwardCount = forwardCount - 1;
+end
+
+print("Refueling complete");
