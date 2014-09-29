@@ -157,7 +157,7 @@ end
 function getInvCount()
     -- Store the currently selected slot so we don't mess anything up.
     local oldSelectedSlot = currentlySelectedSlot
-    if oldSelectedSlot = 0 then
+    if oldSelectedSlot == 0 then
         oldSelectedSlot = 1
     end
 
