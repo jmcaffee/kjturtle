@@ -93,6 +93,12 @@ local currMiningState = miningState.START
 
 -- Variables for sending status updates to a server
 local baseUrl = 'http://localhost:4567/status?id='
+local bmonLevel = 0
+local bmonFuel = 0
+local bmonStatus = ''
+local bmonTotalMined = 0
+local bmonTotalInInventory = 0
+local bmonChestsLooted = 0
 
 -- Command line parameters
 local startHeight -- Represents the height (y co-ord) that the turtle started at
@@ -136,7 +142,7 @@ end
 -- Send our state to the base monitor via http
 -- ********************************************************************************** --
 function sendState(msg)
-    stats = state.newTurtleStatus(turtleId, msg, turtle.getFuelLevel(), getInvCount(), 0)
+    stats = state.newTurtleStatus(turtleId, msg, turtle.getFuelLevel(), getInvCount(), 0, bmonLevel, bmonChestsLooted)
     local url = baseUrl .. turtleId
 
     local ser = textutils.serialize(stats)
@@ -151,6 +157,10 @@ end
 function getInvCount()
     -- Store the currently selected slot so we don't mess anything up.
     local oldSelectedSlot = currentlySelectedSlot
+    if oldSelectedSlot = 0 then
+        oldSelectedSlot = 1
+    end
+
     local totalBlocksInInv = 0
 
     -- Count the inventory
@@ -183,6 +193,7 @@ function ensureFuel()
 
   -- Determine whether a refuel is required
   local fuelLevel = turtle.getFuelLevel()
+  bmonFuel = fuelLevel
   if (fuelLevel ~= "unlimited") then
     if (fuelLevel < fuelLevelToRefuelAt) then
       -- Need to refuel
@@ -393,16 +404,16 @@ function returnToStartAndUnload(returnBackToMiningPoint)
       writeMessage("Current height is greater than start height in returnToStartAndUnload", messageLevel.ERROR)
     end
 
-    sendState('ARRIVED AT DEPOT')
+    sendState('AT DEPOT')
     -- Empty the inventory
     local slotLoop = 1
 
     -- Face the chest
     turtleSetOrientation(direction.BACK)
 
+    sendState('UNLOADING')
     -- Loop over each of the slots (except the 16th one which stores fuel)
     while (slotLoop < 16) do
-      sendState('DUMPING LOAD')
       -- If this is one of the slots that contains a noise block, empty all blocks except
       -- one
       turtle.select(slotLoop) -- Don't bother updating selected slot variable as it will set later in this function
@@ -424,7 +435,7 @@ function returnToStartAndUnload(returnBackToMiningPoint)
 
     -- While we are here, refill the fuel items if there is capacity
     if (turtle.getItemCount(16) < 64) then
-      sendState('RESTOCKING FUEL')
+      sendState('REFUELING')
       turtleSetOrientation(direction.LEFT)
       turtle.select(16) -- Don't bother updating selected slot variable as it will set later in this function
       local currFuelItems = turtle.getItemCount(16)
@@ -498,7 +509,6 @@ function returnToStartAndUnload(returnBackToMiningPoint)
         -- This should never happen
         writeMessage("Stored x is less than current x in returnToStartAndUnload", messageLevel.ERROR)
       end
-      sendState('ARRIVED AT MINE FACE')
     else
       -- Move back to the correct X position first
       if (storedX > currX) then
@@ -527,7 +537,6 @@ function returnToStartAndUnload(returnBackToMiningPoint)
         -- This should never happen
         writeMessage("Stored z is less than current z in returnToStartAndUnload", messageLevel.ERROR)
       end
-      sendState('ARRIVED AT MINE FACE')
     end
 
     -- Move back to the correct layer
@@ -545,7 +554,7 @@ function returnToStartAndUnload(returnBackToMiningPoint)
     turtleSetOrientation(storedOrient)
 
     writeMessage("Have returned to the mining point", messageLevel.DEBUG)
-    sendState('MINING')
+    sendState('ARRIVED AT MINE FACE')
   end
 
   -- Store the current location and orientation so that it can be returned to
@@ -560,6 +569,7 @@ end
 -- ********************************************************************************** --
 function emptyChest(suckFn)
 
+  bmonChestsLooted = bmonChestsLooted + 1
   sendState('LOOTING CHEST')
 
   local prevInventoryCount = {}
@@ -1282,6 +1292,7 @@ function createQuarry()
   local miningLevel
   for miningLevel = (bottomLayer + miningOffset), topMiningLayer, 3 do
     writeMessage("Mining Layer: "..miningLevel, messageLevel.INFO)
+    bmonLevel = miningLevel
     haveBeenAtZeroZeroOnLayer = false
 
     -- While the initial shaft is being dug out, set the level to return to in order to unload
