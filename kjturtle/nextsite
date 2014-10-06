@@ -12,12 +12,12 @@
 -- Author: knuckleheadJoe
 -- 2014-09-15
 
--- Get the input args
-local args = {...}
-
-if (#args == 0) then
-    print("Usage: " .. shell.getRunningProgram() .. " <sectionCount>")
-    error()
+-- Does slot 4 contain roofing material?
+function haveRoofingMaterial()
+    if turtle.getItemCount(4) > 0 then
+        return true
+    end
+    return false
 end
 
 -- Dig a 1x2 tunnel section
@@ -32,10 +32,23 @@ function digForward()
     while turtle.detect() do
         turtle.dig()
         -- Wait for sand or gravel to fall
-        sleep(0.5)
+        sleep(0.75)
     end
     turtle.forward()
-    turtle.digUp()
+
+    while turtle.detectUp() do
+        turtle.digUp()
+        -- Wait for sand or gravel to fall
+        sleep(0.75)
+    end
+
+    -- Check if roof is needed
+    turtle.up()
+    if (not turtle.detectUp()) then
+        turtle.select(4)
+        turtle.placeUp()
+    end
+    turtle.down()
 end
 
 -- Dig out mining site
@@ -103,6 +116,19 @@ end
 
 -- MAIN --
 
+-- Get the input args
+local args = {...}
+
+if (not haveRoofingMaterial()) then
+    print("Roofing material is missing from slot 4")
+    error()
+end
+
+if (#args == 0) then
+    print("Usage: " .. shell.getRunningProgram() .. " <sectionCount>")
+    error()
+end
+
 local blocksToMoveForward = tonumber(args[1])
 blocksToMoveForward = blocksToMoveForward * 16
 -- print("blocks to tunnel: ", blocksToMoveForward)
@@ -113,4 +139,3 @@ tunnel(blocksToMoveForward)
 
 -- Dig mine site
 digSite()
-
