@@ -12,6 +12,7 @@
 
 -- Get the input args
 local args = {...}
+local torchInterval = 10
 
 if (#args == 0) then
     print("Usage: " .. shell.getRunningProgram() .. " <blockCount>")
@@ -22,16 +23,47 @@ end
 function tunnel(blocks)
     for x = 1, blocks do
         digForward()
+        if x % torchInterval == 0 then
+            placeTorch()
+        end
     end
 end
 
 function digForward()
-    while true ~= turtle.forward() do
+    --while true ~= turtle.forward() do
+    while turtle.detect() do
         turtle.dig()
+        -- Wait for sand or gravel to fall
+        sleep(0.75)
     end
-    turtle.digUp()
+    turtle.forward()
+
+    while turtle.detectUp() do
+        turtle.digUp()
+        -- Wait for sand or gravel to fall
+        sleep(0.75)
+    end
 end
 
+function placeTorch()
+    if hasTorch() then
+        turtle.select(1)
+        turtle.back()
+        turtle.turnLeft()
+        turtle.placeUp()
+        turtle.turnRight()
+        turtle.forward()
+    end
+end
+
+function hasTorch()
+    if turtle.getItemCount(1) > 0 then
+        if string.match(turtle.getItemDetail(1)['name'], 'torch') then
+            return true
+        end
+    end
+    return false
+end
 
 -- MAIN --
 
